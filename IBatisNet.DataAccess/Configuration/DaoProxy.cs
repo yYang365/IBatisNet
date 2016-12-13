@@ -81,12 +81,15 @@ namespace IBatisNet.DataAccess.Configuration
 			ProxyGenerator proxyGenerator = new ProxyGenerator();
 			IInterceptor handler = new DaoProxy(dao);
 //			Type[] interfaces = {dao.DaoInterface, typeof(IDao)};
-		    return proxyGenerator.CreateInterfaceProxyWithTarget(dao.DaoInstance,handler);
+//			return proxyGenerator.CreateInterfaceProxyWithTarget(dao.DaoInstance,handler);
 
-		}
-		#endregion
+            // Update Method 
+            return proxyGenerator.CreateInterfaceProxyWithTarget(
+                dao.DaoInterface, dao.DaoInstance, handler) as IDao;
+        }
+        #endregion
 
-		#region IInterceptor menbers
+        #region IInterceptor menbers
         public void Intercept(IInvocation invocation)
         {
 			Object result = null;
@@ -148,8 +151,11 @@ namespace IBatisNet.DataAccess.Configuration
 				}
 			}
 
-			#region Logging
-			if (_logger.IsDebugEnabled) 
+            // Add Return Value
+            invocation.ReturnValue = result;
+
+            #region Logging
+            if (_logger.IsDebugEnabled) 
 			{
 				_logger.Debug("End of proxyfied call to " + invocation.Method.Name);
 			}
